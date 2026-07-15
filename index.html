@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert("GLOBAL ERROR: " + message + "\nSource: " + source + "\nLine: " + lineno + "\nCol: " + colno + (error ? "\nStack: " + error.stack : ""));
+            return false;
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+            alert("UNHANDLED PROMISE REJECTION: " + event.reason);
+        });
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My My Finfo | Financial Management System</title>
+    <!-- Favicon -->
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/2845/2845873.png">
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="">
+    <!-- Auth Overlay -->
+    <div id="auth-overlay" class="overlay active">
+        <div class="auth-card glass-panel">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="ri-wallet-3-line"></i>
+                </div>
+                <h1>My Finfo</h1>
+                <p>Professional Financial Intelligence</p>
+            </div>
+
+            <!-- Official Google Sign-In Button Container -->
+            <div id="g_id_signin" class="google-btn-container"></div>
+
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
+
+            <button id="google-login-btn" class="btn btn-outline btn-block">
+                <i class="ri-user-smile-line"></i> Continue with Demo Account
+            </button>
+
+            <!-- Google Web Client ID Configuration Panel (Collapsible) -->
+            <div style="margin-top: 15px; width: 100%;">
+                <button type="button" id="auth-config-toggle" class="btn btn-outline btn-sm btn-block" style="border-color: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 12px; padding: 6px;">
+                    <i class="ri-settings-4-line"></i> Google Client ID Settings
+                </button>
+                <div id="auth-config-panel" style="display: none; flex-direction: column; gap: 8px; width: 100%; margin-top: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 8px; padding: 12px; text-align: left;">
+                    <label style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 2px; display: block;">Google Web Client ID</label>
+                    <input type="text" id="auth-client-id-input" placeholder="YOUR_CLIENT_ID_HERE.apps.googleusercontent.com" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-main); padding: 8px; font-size: 12px; width: 100%; font-family: monospace;">
+                    <button type="button" id="auth-client-id-save-btn" class="btn btn-primary btn-sm btn-block" style="margin-top: 5px; font-size: 12px; padding: 6px;">
+                        Save & Activate Google Sign-In
+                    </button>
+                    <button type="button" id="auth-toggle-guide-btn" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--accent); font-size: 11px; padding: 6px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; font-weight: 500; width: 100%; margin-top: 5px; border-style: dashed;">
+                        <i class="ri-question-line"></i> Setup Guide: How to get a Client ID?
+                    </button>
+                    <div id="auth-guide-content" style="display: none; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 12px; margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--text-muted); max-height: 250px; overflow-y: auto;">
+                        <h4 style="color: var(--accent); margin-bottom: 6px; font-size: 11px; font-weight: 600;">Google Web Client ID Guide</h4>
+                        <ol style="margin-left: 14px; padding-left: 0; display: flex; flex-direction: column; gap: 6px;">
+                            <li>Go to <a href="https://console.cloud.google.com" target="_blank" style="color: var(--accent); text-decoration: underline;">Google Cloud Console</a>.</li>
+                            <li>Create a project (e.g. <strong>My Finfo</strong>).</li>
+                            <li>Go to <strong>APIs & Services</strong> &gt; <strong>Library</strong>, search for <strong>Gmail API</strong>, click <strong>Enable</strong>.</li>
+                            <li>Go to <strong>OAuth consent screen</strong>, select <strong>External</strong>, and fill in mandatory fields. Under <strong>Scopes</strong>, add <code style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 1px 3px; border-radius: 3px;">.../auth/gmail.readonly</code>. Add your email as a <strong>Test User</strong>.</li>
+                            <li>Go to <strong>Credentials</strong> &gt; <strong>Create Credentials</strong> &gt; <strong>OAuth client ID</strong>.</li>
+                            <li>Select <strong>Web application</strong> as the application type.</li>
+                            <li>Under <strong>Authorized JavaScript origins</strong>, add your local app URI: <code style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 1px 3px; border-radius: 3px;">http://localhost:5500</code> (or your current web server address).</li>
+                            <li>Click <strong>Create</strong>, copy the Client ID, paste it above, and click Save.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <p class="auth-footer">Secure authentication powered by Google Antigravity</p>
+        </div>
+    </div>
+
+    <!-- Main App Shell -->
+    <div id="app-shell" class="hidden">
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="brand-small">
+                    <i class="ri-wallet-3-line"></i>
+                    <span>My Finfo</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-screen="dashboard">
+                    <i class="ri-dashboard-3-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="capture">
+                    <i class="ri-add-circle-line"></i>
+                    <span>Capture</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="accounts">
+                    <i class="ri-bank-line"></i>
+                    <span>Accounts</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="records">
+                    <i class="ri-list-check-2"></i>
+                    <span>All Records</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="review" style="position: relative;">
+                    <i class="ri-mail-check-line"></i>
+                    <span>To Review</span>
+                    <span id="review-badge" class="badge-dot hidden" style="position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: #eab308; border-radius: 50%; box-shadow: 0 0 8px #eab308;"></span>
+                </a>
+                <a href="#" class="nav-item" data-screen="masters">
+                    <i class="ri-database-2-line"></i>
+                    <span>Masters</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="theme">
+                    <i class="ri-palette-line"></i>
+                    <span>Theme Master</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="settings">
+                    <i class="ri-settings-4-line"></i>
+                    <span>Integrations</span>
+                </a>
+                <a href="#" class="nav-item" data-screen="app-info">
+                    <i class="ri-information-line"></i>
+                    <span>App Info</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=random" alt="User">
+                    <div class="user-details">
+                        <h4 id="user-name">Loading...</h4>
+                        <span id="user-email">...</span>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-icon-only" title="Logout">
+                    <i class="ri-logout-box-r-line"></i>
+                </button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="view-info">
+                    <h2 id="current-screen-title">Financial Dashboard</h2>
+                </div>
+                <div class="topbar-actions">
+                    <div class="sync-status" id="sync-status">
+                        <i class="ri-checkbox-circle-line"></i>
+                        <span>Cloud Sync Active</span>
+                    </div>
+                    <button class="btn btn-icon-only" id="global-search-btn">
+                        <i class="ri-search-line"></i>
+                    </button>
+                    <button class="btn btn-icon-only" id="notif-btn">
+                        <i class="ri-notification-3-line"></i>
+                    </button>
+                </div>
+            </header>
+
+            <section class="screen-container">
+                <!-- SCREEN A: DYNAMIC DASHBOARD -->
+                <div id="screen-dashboard" class="screen active">
+                    <div class="dashboard-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                        <div class="pill-toggle" id="dashboard-toggle">
+                            <button class="active" data-filter="income">Income</button>
+                            <button data-filter="expense">Expenses</button>
+                            <button data-filter="upcoming">Upcoming Expenses</button>
+                            <button data-filter="investment">Investments</button>
+                            <button data-filter="ledger">Ledger</button>
+                        </div>
+                        <div class="pill-toggle" id="period-toggle" style="background: rgba(255,255,255,0.03);">
+                            <button class="active" data-period="month">Month</button>
+                            <button data-period="year">Year</button>
+                            <button data-period="all">All</button>
+                        </div>
+                    </div>
+
+                    <div id="dashboard-main-content">
+                        <div class="dashboard-grid">
+                            <div class="card glass-panel kpi-card interactive" id="kpi-net-worth-card">
+                                <div class="kpi-label">Current Net Worth</div>
+                                <div class="kpi-value" id="kpi-net-worth">₹0.00</div>
+                                <div class="kpi-trend up"><i class="ri-arrow-right-up-line"></i> Wallet Strength</div>
+                            </div>
+                            <div class="card glass-panel kpi-card interactive" id="kpi-total-amount-card">
+                                <div class="kpi-label" id="kpi-total-label">Total Income</div>
+                                <div class="kpi-value" id="kpi-total-amount" style="color: var(--accent);">₹0.00</div>
+                                <div class="kpi-trend" id="kpi-total-count">0 Records</div>
+                            </div>
+                            <div class="card glass-panel kpi-card interactive hidden" id="kpi-ledger-take-card">
+                                <div class="kpi-label">Total Amount To Take (Assets)</div>
+                                <div class="kpi-value" id="kpi-ledger-take-amount" style="color: var(--color-income);">₹0.00
+                                </div>
+                                <div class="kpi-trend" id="kpi-ledger-take-words"
+                                    style="color: var(--text-muted); font-size: 10px; white-space: normal; line-height: 1.2;">
+                                    Zero Rupees</div>
+                            </div>
+                            <div class="card glass-panel kpi-card interactive hidden" id="kpi-ledger-give-card">
+                                <div class="kpi-label">Total Amount To Give (Liabilities)</div>
+                                <div class="kpi-value" id="kpi-ledger-give-amount" style="color: var(--color-expense);">
+                                    ₹0.00</div>
+                                <div class="kpi-trend" id="kpi-ledger-give-words"
+                                    style="color: var(--text-muted); font-size: 10px; white-space: normal; line-height: 1.2;">
+                                    Zero Rupees</div>
+                            </div>
+
+                            <div class="card glass-panel chart-card">
+                                <div class="card-header">
+                                    <h3 id="chart-trend-title">Monthly Trend</h3>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="chart-main-trend"></canvas>
+                                </div>
+                            </div>
+                            <div class="card glass-panel chart-card">
+                                <div class="card-header">
+                                    <h3 id="chart-cat-title">Category Wise</h3>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="chart-distribution"></canvas>
+                                </div>
+                            </div>
+                            <div class="card glass-panel chart-card">
+                                <div class="card-header">
+                                    <h3 id="chart-acc-title">Account Wise</h3>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="chart-account-wise"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="card glass-panel" id="dashboard-list-card-1"
+                                style="grid-column: span 3; padding: 0;">
+                                <div class="card-header" style="padding: 24px 24px 10px 24px;">
+                                    <h3 id="dashboard-list-title-1">Recent Transactions</h3>
+                                </div>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr
+                                                style="text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                                <th style="padding: 15px 24px;">Date</th>
+                                                <th style="padding: 15px 24px;">Category</th>
+                                                <th style="padding: 15px 24px;">Account</th>
+                                                <th style="padding: 15px 24px; text-align: right;">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dashboard-records-tbody-1">
+                                            <!-- Populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="card glass-panel hidden" id="dashboard-list-card-2"
+                                style="grid-column: span 3; padding: 0; margin-top: 20px;">
+                                <div class="card-header" style="padding: 24px 24px 10px 24px;">
+                                    <h3 id="dashboard-list-title-2">Amount To Give</h3>
+                                </div>
+                                <div style="max-height: 400px; overflow-y: auto;">
+                                    <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr
+                                                style="text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                                <th style="padding: 15px 24px;">SL</th>
+                                                <th style="padding: 15px 24px;">Name/Account</th>
+                                                <th style="padding: 15px 24px; text-align: right;">Debited</th>
+                                                <th style="padding: 15px 24px; text-align: right;">Credited</th>
+                                                <th style="padding: 15px 24px; text-align: right;">Balance</th>
+                                                <th style="padding: 15px 24px; text-align: center;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dashboard-records-tbody-2">
+                                            <!-- Populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming Expenses Content -->
+                    <div id="dashboard-upcoming-content" class="hidden">
+                        <div class="screen-header" style="margin-top: 15px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <h2 style="font-size: 24px; margin-bottom: 4px;">Upcoming Expenses Dashboard</h2>
+                                <p style="color: var(--text-muted); font-size: 13px;">Manage future recurring and scheduled expenses</p>
+                            </div>
+                            <div class="kpi-mini-group" style="display: flex; gap: 15px;">
+                                <div class="kpi-mini glass-panel" style="padding: 10px 20px; border-radius: 12px; text-align: right; min-width: 180px;">
+                                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Total Scheduled</div>
+                                    <div id="upcoming-total-amount" style="font-size: 18px; font-weight: 700; color: var(--color-expense);">₹0.00</div>
+                                </div>
+                                <div class="kpi-mini glass-panel" style="padding: 10px 20px; border-radius: 12px; text-align: right; min-width: 120px;">
+                                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">Total Counts</div>
+                                    <div id="upcoming-total-count" style="font-size: 18px; font-weight: 700; color: var(--accent);">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section: To Be Paid -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--color-expense); display: flex; align-items: center; gap: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="ri-time-line" style="font-size: 18px;"></i> To Be Paid
+                            </h3>
+                            <div class="table-container glass-panel" style="overflow-x: auto; width: 100%;">
+                                <table id="upcoming-to-be-paid-table" style="white-space: nowrap; width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                            <th style="padding: 12px 16px;">Billing Date</th>
+                                            <th style="padding: 12px 16px;">Due Date</th>
+                                            <th style="padding: 12px 16px;">Frequency</th>
+                                            <th style="padding: 12px 16px;">Category Head</th>
+                                            <th style="padding: 12px 16px;">Category</th>
+                                            <th style="padding: 12px 16px;">SubCategory</th>
+                                            <th style="padding: 12px 16px;">To Person/Account</th>
+                                            <th style="padding: 12px 16px;">Account</th>
+                                            <th style="padding: 12px 16px;">Mode</th>
+                                            <th style="padding: 12px 16px; text-align: right;">Amount</th>
+                                            <th style="padding: 12px 16px;">Transaction Date *</th>
+                                            <th style="padding: 12px 16px;">Note</th>
+                                            <th style="padding: 12px 16px; text-align: center;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="upcoming-to-be-paid-tbody">
+                                        <!-- Dynamically generated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Section: Paid -->
+                        <div>
+                            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--color-income); display: flex; align-items: center; gap: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="ri-checkbox-circle-line" style="font-size: 18px;"></i> Paid
+                            </h3>
+                            <div class="table-container glass-panel" style="overflow-x: auto; width: 100%;">
+                                <table id="upcoming-paid-table" style="white-space: nowrap; width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="text-align: left; font-size: 11px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--glass-border);">
+                                            <th style="padding: 12px 16px;">Billing Date</th>
+                                            <th style="padding: 12px 16px;">Due Date</th>
+                                            <th style="padding: 12px 16px;">Frequency</th>
+                                            <th style="padding: 12px 16px;">Category Head</th>
+                                            <th style="padding: 12px 16px;">Category</th>
+                                            <th style="padding: 12px 16px;">SubCategory</th>
+                                            <th style="padding: 12px 16px;">To Person/Account</th>
+                                            <th style="padding: 12px 16px;">Account</th>
+                                            <th style="padding: 12px 16px;">Mode</th>
+                                            <th style="padding: 12px 16px; text-align: right;">Amount</th>
+                                            <th style="padding: 12px 16px;">Transaction Date *</th>
+                                            <th style="padding: 12px 16px;">Note</th>
+                                            <th style="padding: 12px 16px; text-align: center;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="upcoming-paid-tbody">
+                                        <!-- Dynamically generated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCREEN B: CARD-BASED TRANSACTION CAPTURE -->
+                <div id="screen-capture" class="screen">
+                    <div class="capture-hero-grid">
+                        <div class="hero-card income" data-type="Income">
+                            <i class="ri-arrow-left-down-line"></i>
+                            <h3>Income</h3>
+                            <p>Salary, Dividends, Bonus</p>
+                        </div>
+                        <div class="hero-card expense" data-type="Expense">
+                            <i class="ri-arrow-right-up-line"></i>
+                            <h3>Expense</h3>
+                            <p>Daily bills, Shopping, Rent</p>
+                        </div>
+                        <div class="hero-card investment" data-type="Investment">
+                            <i class="ri-line-chart-line"></i>
+                            <h3>Investment</h3>
+                            <p>Stocks, Crypto, Real Estate</p>
+                        </div>
+                        <div class="hero-card ledger" data-type="Ledger">
+                            <i class="ri-hand-coin-line"></i>
+                            <h3>Ledger</h3>
+                            <p>Ledger, Repayment</p>
+                        </div>
+                        <div class="hero-card transfer" data-type="Transfer">
+                            <i class="ri-swap-line"></i>
+                            <h3>Fund Transfer Self</h3>
+                            <p>Move money between accounts</p>
+                        </div>
+                        <div class="hero-card upcoming-expense" data-type="UpcomingExpense">
+                            <i class="ri-calendar-todo-line"></i>
+                            <h3>Add Upcoming Expenses & EMIs</h3>
+                            <p>Schedule recurring future transactions</p>
+                        </div>
+                    </div>
+
+                    <div id="capture-form-area" class="hidden slide-up">
+                        <div class="form-card glass-panel">
+                            <div class="form-header">
+                                <button id="back-to-hero" class="btn btn-icon-only"><i
+                                        class="ri-arrow-left-line"></i></button>
+                                <h3 id="form-title">Add Income</h3>
+                            </div>
+
+                            <div class="black-thin-border">
+                                <label id="category-label"
+                                    style="display: block; margin-top: 0; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">Select Category Head *</label>
+                                <div class="sub-card-grid" id="category-pills" style="margin: 0;">
+                                    <!-- Categories populated dynamically -->
+                                </div>
+                                
+                                <hr id="category-divider-1" class="hidden" style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">
+                                
+                                <div id="sub-category-pills-container" class="hidden">
+                                    <label style="display: block; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">Select Category *</label>
+                                    <div class="sub-card-grid thin-border" id="sub-category-pills" style="margin-top: 5px;">
+                                        <!-- Sub-categories populated dynamically -->
+                                    </div>
+                                </div>
+                                
+                                <hr id="category-divider-2" class="hidden" style="border: 0; border-top: 1px solid rgba(255, 255, 255, 0.08); margin: 15px 0;">
+
+                                <div id="second-sub-category-pills-container" class="hidden">
+                                    <label style="display: block; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">Select SubCategory *</label>
+                                    <div class="sub-card-grid thin-border" id="second-sub-category-pills" style="margin-top: 5px;">
+                                        <!-- Sub-categories populated dynamically -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="transfer-header-info" class="hidden"
+                                style="margin-bottom: 24px; padding: 15px; background: rgba(56, 189, 248, 0.05); border-radius: 12px; border-left: 4px solid var(--accent);">
+                                <h4 style="color: var(--accent); margin-bottom: 5px;">Internal Fund Transfer</h4>
+                                <p style="font-size: 12px; color: var(--text-muted);">Moving funds between your own
+                                    mapped accounts.</p>
+                            </div>
+                            <form id="transaction-form" class="transaction-form" novalidate>
+                                <input type="hidden" id="trans-type">
+                                <input type="hidden" id="trans-category">
+                                <input type="hidden" id="trans-sub-category">
+                                <input type="hidden" id="trans-second-sub-category">
+
+                                <!-- Ledger Specific Fields -->
+                                <div id="ledger-details" class="hidden black-thin-border">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label id="ledger-person-label">To *</label>
+                                        <input type="text" id="trans-ledger-person" placeholder="Enter Name"
+                                            list="ledger-names-list"
+                                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; width: 100%; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                                        <datalist id="ledger-names-list"></datalist>
+                                        <div class="help-text" style="margin-top: 5px;">Specify the person or entity
+                                            involved in this transaction.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Expense Specific Fields -->
+                                <div id="expense-person-details" class="hidden black-thin-border">
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label>To Person/Account</label>
+                                        <input type="text" id="trans-expense-person" placeholder="Enter Person or Account Name"
+                                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; width: 100%; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+
+
+                                    <div id="standard-account-group" class="form-group black-thin-border" style="grid-column: span 2;">
+                                        <label>Source/Target Account *</label>
+                                        <div id="account-head-pills" class="sub-card-grid" style="margin-bottom: 12px;">
+                                            <!-- Account heads populated dynamically -->
+                                        </div>
+                                        <div id="account-selection-container"
+                                            class="account-selection-container hidden thin-border">
+                                            <div id="account-selection-cards" class="account-cards-grid">
+                                                <!-- Dependent accounts populated dynamically -->
+                                            </div>
+                                        </div>
+                                        <div id="account-view-only" class="form-group hidden"
+                                            style="margin-top: 15px; grid-column: span 2;">
+                                            <label>Account Name (View Only)</label>
+                                            <input type="text" id="selected-account-name" readonly
+                                                style="background: rgba(255,255,255,0.03); cursor: not-allowed; border: 1px solid rgba(255,255,255,0.1); color: var(--accent); font-weight: 600;">
+                                        </div>
+                                        <input type="hidden" id="trans-bank">
+                                    </div>
+
+
+
+                                    <!-- Transfer Specific Fields -->
+                                    <div id="transfer-group" class="hidden black-thin-border"
+                                        style="grid-column: span 2; display: flex; flex-direction: column; gap: 20px;">
+                                        <div class="transfer-box">
+                                            <label
+                                                style="color: var(--color-expense); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
+                                                <i class="ri-logout-circle-line"></i> From Account (Source)
+                                            </label>
+                                            <div id="transfer-from-head-pills" class="sub-card-grid"></div>
+                                            <div id="transfer-from-container"
+                                                class="account-selection-container hidden thin-border">
+                                                <div id="transfer-from-cards" class="account-cards-grid"></div>
+                                            </div>
+                                            <div id="transfer-from-view" class="form-group hidden"
+                                                style="margin-top: 15px;">
+                                                <label>Account Name (View Only)</label>
+                                                <input type="text" id="selected-from-account" readonly
+                                                    style="background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.2); color: var(--color-expense); font-weight: 600; font-size: 13px;">
+                                            </div>
+                                            <input type="hidden" id="trans-from-bank">
+                                        </div>
+
+                                        <div class="transfer-divider"
+                                            style="display: flex; align-items: center; justify-content: center; position: relative;">
+                                            <hr
+                                                style="width: 100%; border: none; border-top: 1px dashed var(--glass-border);">
+                                            <div
+                                                style="position: absolute; background: var(--bg-main); padding: 0 15px; color: var(--accent); font-size: 20px;">
+                                                <i class="ri-arrow-down-circle-fill"></i>
+                                            </div>
+                                        </div>
+
+                                        <div class="transfer-box">
+                                            <label
+                                                style="color: var(--color-income); display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px;">
+                                                <i class="ri-login-circle-line"></i> To Account (Destination)
+                                            </label>
+                                            <div id="transfer-to-head-pills" class="sub-card-grid"></div>
+                                            <div id="transfer-to-container"
+                                                class="account-selection-container hidden thin-border">
+                                                <div id="transfer-to-cards" class="account-cards-grid"></div>
+                                            </div>
+                                            <div id="transfer-to-view" class="form-group hidden"
+                                                style="margin-top: 15px;">
+                                                <label>Account Name (View Only)</label>
+                                                <input type="text" id="selected-to-account" readonly
+                                                    style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--color-income); font-weight: 600; font-size: 13px;">
+                                            </div>
+                                            <input type="hidden" id="trans-to-bank">
+                                        </div>
+                                    </div>
+
+                                    <!-- Loan EMI Details -->
+                                    <div id="loan-emi-details" class="hidden" style="grid-column: span 2; margin-top: 5px; margin-bottom: 5px; background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 12px; padding: 15px;">
+                                        <h4 style="color: var(--accent); font-size: 11px; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                                            <i class="ri-bank-card-line"></i> Loan EMI Details
+                                            <span id="loan-emi-auto-badge" class="hidden" style="background: rgba(56,189,248,0.15); color: var(--accent); font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 600; letter-spacing: 0.5px;">AUTO-FILLED FROM MASTER</span>
+                                        </h4>
+
+                                        <!-- Auto-filled from Master (read-only) -->
+                                        <div id="loan-emi-master-info" class="hidden" style="margin-bottom: 15px; padding: 12px; background: rgba(56,189,248,0.05); border: 1px dashed rgba(56,189,248,0.2); border-radius: 8px;">
+                                            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.5px;">
+                                                <i class="ri-lock-line"></i> From Account Master (Read Only)
+                                            </div>
+                                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Loan Sanctioned Date</label>
+                                                    <input type="date" id="loan-info-sanctioned-date" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">First EMI Start Date</label>
+                                                    <input type="date" id="loan-info-emi-start-date" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Loan Duration</label>
+                                                    <input type="text" id="loan-info-duration" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Loan End Date</label>
+                                                    <input type="date" id="loan-info-end-date" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--accent); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85; font-weight: 600;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">Rate of Interest (%)</label>
+                                                    <input type="text" id="loan-info-rate" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">EMI Amount (₹)</label>
+                                                    <input type="text" id="loan-info-emi-amount" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--color-income); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85; font-weight: 700;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">EMI Billing Date (DD)</label>
+                                                    <input type="text" id="loan-info-billing-date" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label style="font-size: 10px; font-weight: 600; color: var(--text-muted);">EMI Due Date (DD)</label>
+                                                    <input type="text" id="loan-info-due-date" readonly style="background: rgba(56,189,248,0.04); border: 1px solid rgba(56,189,248,0.15); color: var(--text-main); padding: 8px 10px; border-radius: 8px; font-size: 12px; width: 100%; cursor: not-allowed; opacity: 0.85;">
+                                                </div>
+                                            </div>
+                                    </div>
+                                </div>
+
+
+                                    <div class="form-group black-thin-border" style="grid-column: span 2;">
+                                        <label>Transaction Mode *</label>
+                                        <div class="sub-card-grid" id="mode-pills" style="margin: 0;">
+                                            <div class="pill-item" data-mode="UPI">UPI</div>
+                                            <div class="pill-item" data-mode="CARD">CARD</div>
+                                            <div class="pill-item" data-mode="CASH">CASH</div>
+                                            <div class="pill-item" data-mode="Bank Transfer">Bank Transfer</div>
+                                            <div class="pill-item" data-mode="Opening Balance">Opening Balance</div>
+                                            <div class="pill-item" data-mode="Auto Deduction">Auto Deduction</div>
+                                        </div>
+                                        <input type="hidden" id="trans-mode">
+                                    </div>
+                                    <div class="form-group hidden black-thin-border" id="upcoming-frequency-group" style="grid-column: span 2;">
+                                        <div style="display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 15px; width: 100%; align-items: start;">
+                                            <div>
+                                                <label>Expense Frequency *</label>
+                                                <div class="sub-card-grid" id="frequency-pills" style="margin: 8px 0; display: flex; gap: 6px;">
+                                                    <div class="pill-item active" data-frequency="Daily" style="padding: 6px 12px; font-size: 11px;">Daily</div>
+                                                    <div class="pill-item" data-frequency="Monthly" style="padding: 6px 12px; font-size: 11px;">Monthly</div>
+                                                    <div class="pill-item" data-frequency="Yearly" style="padding: 6px 12px; font-size: 11px;">Yearly</div>
+                                                </div>
+                                                <input type="hidden" id="trans-frequency" value="Daily">
+                                            </div>
+                                            <div id="billing-date-group" class="form-group hidden" style="margin-bottom: 0;">
+                                                <label>Billing Date *</label>
+                                                <input type="number" id="trans-billing-date" min="1" max="31" placeholder="DD (e.g. 18)"
+                                                    style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; padding: 10px; border-radius: 8px; outline: none; font-size: 13px;">
+                                            </div>
+                                            <div id="due-date-group" class="form-group hidden" style="margin-bottom: 0;">
+                                                <label>Due Date *</label>
+                                                <input type="number" id="trans-due-date" min="1" max="31" placeholder="DD (e.g. 25)"
+                                                    style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; padding: 10px; border-radius: 8px; outline: none; font-size: 13px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="amount-dates-container" class="black-thin-border" style="grid-column: span 2; display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                        <div class="form-group" id="withdrawal-amount-group" style="margin-bottom: 0;">
+                                            <label>Withdrawal Amount(INR) *</label>
+                                            <div class="input-prefix">
+                                                <span id="withdrawal-currency-symbol">₹</span>
+                                                <input type="number" step="0.01" id="trans-withdrawal-amount" placeholder="0.00">
+                                            </div>
+                                            <div id="withdrawal-amount-in-words" class="help-text"
+                                                style="margin-top: 8px; color: var(--color-expense); font-weight: 500; font-size: 11px; min-height: 1.2em; font-style: italic; opacity: 0.9;">
+                                            </div>
+                                        </div>
+                                        <div class="form-group" id="deposit-amount-group" style="margin-bottom: 0;">
+                                            <label>Deposit Amount(INR) *</label>
+                                            <div class="input-prefix">
+                                                <span id="deposit-currency-symbol">₹</span>
+                                                <input type="number" step="0.01" id="trans-deposit-amount" placeholder="0.00">
+                                            </div>
+                                            <div id="deposit-amount-in-words" class="help-text"
+                                                style="margin-top: 8px; color: var(--color-income); font-weight: 500; font-size: 11px; min-height: 1.2em; font-style: italic; opacity: 0.9;">
+                                            </div>
+                                        </div>
+                                        <div id="date-time-row" style="display: flex; gap: 15px; grid-column: span 1;">
+                                            <div class="form-group" id="trans-date-group" style="flex: 1; margin-bottom: 0;">
+                                                <label id="trans-date-label">Date (DD-MMM-YYYY) *</label>
+                                                <div class="input-with-icon" style="display: flex; gap: 8px;">
+                                                    <input type="text" id="trans-date-display" required
+                                                        placeholder="e.g. 13-May-2026"
+                                                        style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                                                    <button type="button" class="btn btn-icon-only" id="date-picker-btn"
+                                                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
+                                                        <i class="ri-calendar-line" style="color: var(--accent);"></i>
+                                                    </button>
+                                                    <input type="date" id="trans-date"
+                                                        style="position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;">
+                                                </div>
+                                            </div>
+                                            <div class="form-group" id="trans-time-group" style="flex: 1; margin-bottom: 0;">
+                                                <label>Time (HH:MM:SS) *</label>
+                                                <input type="text" id="trans-time-display" placeholder="22:20:15" required
+                                                    style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; padding: 12px; border-radius: 8px; outline: none; font-size: 14px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="details-upi-row" class="black-thin-border" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                                        <label>UPI Ref No.</label>
+                                        <input type="text" id="trans-upi-ref" placeholder="Ref No"
+                                            style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 600; padding: 12px; border-radius: 8px; outline: none; font-size: 14px; width: 100%;">
+                                    </div>
+                                </div>
+                                <div class="form-group black-thin-border">
+                                    <label>Note / Description</label>
+                                    <textarea id="trans-note" rows="2" placeholder="What is this for?"></textarea>
+                                </div>
+                                <div class="form-group black-thin-border">
+                                    <label>File Attachment</label>
+                                    <div class="file-drop-zone" id="file-drop-zone">
+                                        <i class="ri-file-upload-line"></i>
+                                        <p>Drag receipt or click to upload</p>
+                                        <input type="file" id="trans-file" class="hidden">
+                                    </div>
+                                    <div id="file-preview" class="hidden"></div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary btn-block">
+                                        <i class="ri-save-line"></i> Post Transaction
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- SCREEN C: DATA GRID & BULK ACTIONS -->
+                <div id="screen-records" class="screen">
+                    <div class="records-header">
+                        <div class="search-bar">
+                            <i class="ri-search-line"></i>
+                            <input type="text" id="record-search" placeholder="Search transactions...">
+                        </div>
+                        <div class="action-group">
+                            <button class="btn btn-outline" id="download-template-btn">
+                                <i class="ri-download-line"></i> Template
+                            </button>
+                            <button class="btn btn-primary" id="bulk-import-btn">
+                                <i class="ri-file-excel-line"></i> Bulk Import
+                            </button>
+                            <input type="file" id="bulk-file-input" class="hidden" accept=".csv, .xlsx">
+                        </div>
+                    </div>
+                    <div class="table-container glass-panel" style="overflow-x: auto; width: 100%;">
+                        <table id="main-table" style="white-space: nowrap; width: max-content;">
+                            <thead>
+                                <tr>
+                                    <th class="sortable-header" data-sort="date" onclick="handleSort('date')">
+                                        <div class="header-content">
+                                            <span>Date</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('date', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="date" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="time" onclick="handleSort('time')">
+                                        <div class="header-content">
+                                            <span>Time</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('time', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="time" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="type" onclick="handleSort('type')">
+                                        <div class="header-content">
+                                            <span>Type</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('type', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="type" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="category" onclick="handleSort('category')">
+                                        <div class="header-content">
+                                            <span>Category Head</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('category', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="category" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="subCategory" onclick="handleSort('subCategory')">
+                                        <div class="header-content">
+                                            <span>Category</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('subCategory', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="subCategory" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="secondSubCategory" onclick="handleSort('secondSubCategory')">
+                                        <div class="header-content">
+                                            <span>SubCategory</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('secondSubCategory', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="secondSubCategory" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="bank" onclick="handleSort('bank')">
+                                        <div class="header-content">
+                                            <span>Account</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('bank', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="bank" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="person" onclick="handleSort('person')">
+                                        <div class="header-content">
+                                            <span>LedgerPerson</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('person', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="person" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="mode" onclick="handleSort('mode')">
+                                        <div class="header-content">
+                                            <span>Mode</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('mode', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="mode" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="withdrawalAmount" onclick="handleSort('withdrawalAmount')">
+                                        <div class="header-content">
+                                            <span>Withdrawal Amount(INR)</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('withdrawalAmount', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="withdrawalAmount" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="depositAmount" onclick="handleSort('depositAmount')">
+                                        <div class="header-content">
+                                            <span>Deposit Amount(INR)</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('depositAmount', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="depositAmount" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="upiRef" onclick="handleSort('upiRef')">
+                                        <div class="header-content">
+                                            <span>UPI Ref No</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('upiRef', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="upiRef" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="note" onclick="handleSort('note')">
+                                        <div class="header-content">
+                                            <span>Note</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('note', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="note" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="timestamp" onclick="handleSort('timestamp')">
+                                        <div class="header-content">
+                                            <span>Timestamp</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('timestamp', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="timestamp" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th class="sortable-header" data-sort="recordEnteredAs" onclick="handleSort('recordEnteredAs')">
+                                        <div class="header-content">
+                                            <span>Record Entered As</span>
+                                            <div class="header-actions">
+                                                <i class="ri-arrow-up-down-line sort-icon"></i>
+                                                <i class="ri-filter-3-line filter-icon" onclick="toggleFilter('recordEnteredAs', event)" title="Toggle Filter"></i>
+                                            </div>
+                                        </div>
+                                        <input type="text" class="column-filter hidden" data-col="recordEnteredAs" placeholder="Filter..." onclick="event.stopPropagation()">
+                                    </th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-tbody">
+                                <!-- Data rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SCREEN D.2: TO REVIEW (FROM GMAIL) -->
+                <div id="screen-review" class="screen">
+                    <div class="screen-header">
+                        <h2>To Review (From Gmail)</h2>
+                        <p class="subtitle">Process and verify transactions extracted from your Gmail Paytm alerts</p>
+                    </div>
+
+                    <!-- Statistics Bar -->
+                    <div class="dashboard-grid grid-4" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px; gap: 16px;">
+                        <div class="kpi-card glass-panel" style="padding: 16px; display: flex; align-items: center; gap: 16px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03);">
+                            <div style="background: rgba(234, 179, 8, 0.15); color: #eab308; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                <i class="ri-mail-unread-line"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 13px; color: var(--text-muted);">Pending Items</div>
+                                <div id="review-pending-count" style="font-size: 20px; font-weight: 600; color: var(--text-main);">0</div>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card glass-panel" style="padding: 16px; display: flex; align-items: center; gap: 16px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03);">
+                            <div style="background: rgba(14, 165, 233, 0.15); color: #0ea5e9; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                                <i class="ri-wallet-3-line"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 13px; color: var(--text-muted);">Staging Total</div>
+                                <div id="review-staging-total" style="font-size: 20px; font-weight: 600; color: var(--text-main);">₹0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="glass-panel" style="padding: 16px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03); margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button id="review-push-btn" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+                                <i class="ri-check-double-line"></i> Push Selected to DB
+                            </button>
+                            <button id="review-discard-btn" class="btn btn-outline" style="display: flex; align-items: center; gap: 8px; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                                <i class="ri-delete-bin-line"></i> Discard Selected
+                            </button>
+                        </div>
+                        <div id="review-selection-status" style="font-size: 14px; color: var(--text-muted);">
+                            No items selected
+                        </div>
+                    </div>
+
+                    <!-- Staging Table Container -->
+                    <div class="glass-panel" style="padding: 20px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.03);">
+                        <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                            <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                                        <th style="padding: 12px 8px; width: 40px;">
+                                            <input type="checkbox" id="review-select-all" style="transform: scale(1.1); cursor: pointer;">
+                                        </th>
+                                        <th style="padding: 12px 8px; width: 110px;">Date</th>
+                                        <th style="padding: 12px 8px; width: 80px;">Type</th>
+                                        <th style="padding: 12px 8px; width: 140px;">Account / Bank</th>
+                                        <th style="padding: 12px 8px; width: 130px;">Category</th>
+                                        <th style="padding: 12px 8px; width: 130px;">Sub-Category</th>
+                                        <th style="padding: 12px 8px;">Notes / Description</th>
+                                        <th style="padding: 12px 8px; text-align: right; width: 100px;">Amount</th>
+                                        <th style="padding: 12px 8px; text-align: center; width: 80px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="review-tbody">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State Placeholders -->
+                        <div id="review-empty-state" class="empty-state" style="padding: 60px 20px; text-align: center;">
+                            <div style="background: rgba(255,255,255,0.02); display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; border: 1px dashed var(--glass-border); margin-bottom: 16px; color: var(--text-muted);">
+                                <i class="ri-mail-check-line" style="font-size: 32px;"></i>
+                            </div>
+                            <h4 style="font-size: 18px; font-weight: 500; margin-bottom: 8px; color: var(--text-main);">No Pending Transactions</h4>
+                            <p style="color: var(--text-muted); font-size: 14px; max-width: 400px; margin: 0 auto 16px;">There are currently no transactions waiting in the staging area. Go to Integrations and run a Gmail Scan to fetch new Paytm notification alerts.</p>
+                            <button onclick="switchScreen('settings')" class="btn btn-primary btn-sm">Go to Integrations</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCREEN D: MASTERS MANAGEMENT (BOARD VIEW) -->
+                <div id="screen-masters" class="screen">
+                    <div class="master-board">
+                        <!-- Bank Accounts Board -->
+                        <div class="board-card" data-color="purple" data-master="bank">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-bank-line"></i>
+                                    <h3>Bank Accounts</h3>
+                                </div>
+                                <span class="board-count" id="count-bank">0</span>
+                            </div>
+                            <ul class="board-list" id="bank-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add account..." id="input-bank">
+                                <button class="board-add-btn" onclick="quickAddMaster('bank')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Income Categories Board -->
+                        <div class="board-card" data-color="cyan" data-master="income">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-download-cloud-line"></i>
+                                    <h3>Income Category Heads</h3>
+                                </div>
+                                <span class="board-count" id="count-income">0</span>
+                            </div>
+                            <ul class="board-list" id="income-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add type..." id="input-income">
+                                <button class="board-add-btn" onclick="quickAddMaster('income')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Expense Categories Board -->
+                        <div class="board-card" data-color="yellow" data-master="expense">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-upload-cloud-line"></i>
+                                    <h3>Expense Category Heads</h3>
+                                </div>
+                                <span class="board-count" id="count-expense">0</span>
+                            </div>
+                            <ul class="board-list" id="expense-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add type..." id="input-expense">
+                                <button class="board-add-btn" onclick="quickAddMaster('expense')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Investment Categories Board -->
+                        <div class="board-card" data-color="green" data-master="investment">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-stock-line"></i>
+                                    <h3>Investment Category Heads</h3>
+                                </div>
+                                <span class="board-count" id="count-investment">0</span>
+                            </div>
+                            <ul class="board-list" id="investment-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add type..." id="input-investment">
+                                <button class="board-add-btn" onclick="quickAddMaster('investment')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Lend & Borrow Board -->
+                        <div class="board-card" data-color="red" data-master="ledger">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-exchange-funds-line"></i>
+                                    <h3>Ledger Accounts</h3>
+                                </div>
+                                <span class="board-count" id="count-ledger">0</span>
+                            </div>
+                            <ul class="board-list" id="ledger-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add type..." id="input-ledger">
+                                <button class="board-add-btn" onclick="quickAddMaster('ledger')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Self Transfer Board -->
+                        <div class="board-card" data-color="purple" data-master="transfer">
+                            <div class="board-header">
+                                <div class="board-header-left">
+                                    <i class="ri-swap-line"></i>
+                                    <h3>Self Transfer Category Heads</h3>
+                                </div>
+                                <span class="board-count" id="count-transfer">0</span>
+                            </div>
+                            <ul class="board-list" id="transfer-list"></ul>
+                            <div class="board-footer">
+                                <input type="text" class="board-input" placeholder="Add type..." id="input-transfer">
+                                <button class="board-add-btn" onclick="quickAddMaster('transfer')"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCREEN: ALL ACCOUNTS -->
+                <div id="screen-accounts" class="screen">
+                    <div class="screen-header"
+                        style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="font-size: 24px; margin-bottom: 4px;">Financial Accounts</h2>
+                            <p style="color: var(--text-muted); font-size: 13px;">Real-time balance tracking & account
+                                details</p>
+                        </div>
+                        <div class="kpi-mini-group" style="display: flex; gap: 15px;">
+                            <div class="kpi-mini glass-panel"
+                                style="padding: 10px 20px; border-radius: 12px; text-align: right; min-width: 200px;">
+                                <div
+                                    style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;">
+                                    Total Liquid Assets</div>
+                                <div id="total-liquid-assets"
+                                    style="font-size: 18px; font-weight: 700; color: var(--accent);">₹0.00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container glass-panel">
+                        <table id="accounts-table">
+                            <thead>
+                                <tr>
+                                    <th>SL</th>
+                                    <th>Initial</th>
+                                    <th>Full Account Name</th>
+                                    <th>Account Head</th>
+                                    <th>Account Type</th>
+                                    <th>A/c Number</th>
+                                    <th>Card Number</th>
+                                    <th>Status</th>
+                                    <th>Capabilities</th>
+                                    <th style="text-align: right;">Opening Balance</th>
+                                    <th style="text-align: right;">Current Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accounts-tbody">
+                                <!-- Account rows will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SCREEN: THEME MASTER -->
+                <div id="screen-theme" class="screen">
+                    <div class="theme-card glass-panel" style="max-width: 900px;">
+                        <h3>Global UI Architect</h3>
+                        <p>Real-time Master Theming Engine</p>
+
+                        <div class="theme-presets"
+                            style="margin-top: 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 15px;">
+                            <button class="btn btn-primary preset-theme-btn" data-preset="modern-light">Modern Light</button>
+                            <button class="btn btn-outline preset-theme-btn" data-preset="classic-dark">Classic Dark</button>
+                            <button class="btn btn-outline preset-theme-btn" data-preset="midnight-blue">Midnight Blue</button>
+                            <button class="btn btn-outline preset-theme-btn" data-preset="corporate-clean">Corporate Clean</button>
+                        </div>
+
+                        <div class="theme-controls" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            
+                            <!-- Base Backgrounds -->
+                            <div class="theme-group glass-panel" style="padding: 15px;">
+                                <h4>Base Backgrounds</h4>
+                                <div class="control-group">
+                                    <label>Primary Background</label>
+                                    <input type="color" data-var="--bg-main" id="theme-bg" value="#0f172a">
+                                </div>
+                                <div class="control-group">
+                                    <label>Secondary Background</label>
+                                    <input type="color" data-var="--bg-secondary" id="theme-bg-sec" value="#1e293b">
+                                </div>
+                                <div class="control-group">
+                                    <label>Tertiary / Borders</label>
+                                    <input type="color" data-var="--bg-tertiary" id="theme-bg-ter" value="#334155">
+                                </div>
+                            </div>
+
+                            <!-- Text & Accents -->
+                            <div class="theme-group glass-panel" style="padding: 15px;">
+                                <h4>Text & Accents</h4>
+                                <div class="control-group">
+                                    <label>Main Text</label>
+                                    <input type="color" data-var="--text-main" id="theme-text" value="#f8fafc">
+                                </div>
+                                <div class="control-group">
+                                    <label>Muted Text</label>
+                                    <input type="color" data-var="--text-muted" id="theme-text-mut" value="#94a3b8">
+                                </div>
+                                <div class="control-group">
+                                    <label>Primary Accent</label>
+                                    <input type="color" data-var="--accent" id="theme-accent" value="#38bdf8">
+                                </div>
+                                <div class="control-group">
+                                    <label>Accent Hover</label>
+                                    <input type="color" data-var="--accent-hover" id="theme-accent-hov" value="#0ea5e9">
+                                </div>
+                            </div>
+
+                            <!-- Financial Pillars -->
+                            <div class="theme-group glass-panel" style="padding: 15px;">
+                                <h4>Financial Pillars</h4>
+                                <div class="control-group">
+                                    <label>Income</label>
+                                    <input type="color" data-var="--color-income" id="theme-inc" value="#10b981">
+                                </div>
+                                <div class="control-group">
+                                    <label>Expense</label>
+                                    <input type="color" data-var="--color-expense" id="theme-exp" value="#f43f5e">
+                                </div>
+                                <div class="control-group">
+                                    <label>Investment</label>
+                                    <input type="color" data-var="--color-investment" id="theme-inv" value="#8b5cf6">
+                                </div>
+                                <div class="control-group">
+                                    <label>Transfer / Ledger</label>
+                                    <input type="color" data-var="--color-ledger" id="theme-ledg" value="#f59e0b">
+                                </div>
+                            </div>
+
+                            <!-- Semantic Status -->
+                            <div class="theme-group glass-panel" style="padding: 15px;">
+                                <h4>Semantic Status</h4>
+                                <div class="control-group">
+                                    <label>Success</label>
+                                    <input type="color" data-var="--color-success" id="theme-suc" value="#22c55e">
+                                </div>
+                                <div class="control-group">
+                                    <label>Warning</label>
+                                    <input type="color" data-var="--color-warning" id="theme-war" value="#eab308">
+                                </div>
+                                <div class="control-group">
+                                    <label>Danger</label>
+                                    <input type="color" data-var="--color-danger" id="theme-dan" value="#ef4444">
+                                </div>
+                                <div class="control-group">
+                                    <label>Info</label>
+                                    <input type="color" data-var="--color-info" id="theme-inf" value="#06b6d4">
+                                </div>
+                            </div>
+
+                            <!-- Sizing & Spacing -->
+                            <div class="theme-group glass-panel" style="padding: 15px; grid-column: 1 / -1;">
+                                <h4>Sizing & Layout</h4>
+                                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                    <div class="control-group" style="flex: 1; min-width: 200px;">
+                                        <label>Base Font Size (<span id="lbl-font-size">16</span>px)</label>
+                                        <input type="range" data-var="--font-size" data-suffix="px" id="theme-font-size" min="12" max="24" value="16">
+                                    </div>
+                                    <div class="control-group" style="flex: 1; min-width: 200px;">
+                                        <label>Header Height (<span id="lbl-header-height">45</span>px)</label>
+                                        <input type="range" data-var="--header-height" data-suffix="px" id="theme-header-height" min="40" max="100" value="45">
+                                    </div>
+                                    <div class="control-group" style="flex: 1; min-width: 200px;">
+                                        <label>Border Radius (<span id="lbl-radius">12</span>px)</label>
+                                        <input type="range" data-var="--radius" data-suffix="px" id="theme-radius" min="0" max="32" value="12">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="theme-actions" style="margin-top: 20px;">
+                            <button class="btn btn-primary" id="save-theme-btn">Apply To All Screens</button>
+                            <button class="btn btn-outline" id="reset-theme-btn">Reset Defaults</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCREEN: INTEGRATION SETTINGS -->
+                <div id="screen-settings" class="screen">
+                    <div class="settings-grid">
+                        <div class="settings-card glass-panel">
+                            <div class="card-header">
+                                <i class="ri-google-fill"></i>
+                                <h3>Cloud Storage & Drive</h3>
+                            </div>
+                            <div class="form-group">
+                                <label>Google Sheet URL (Storage)</label>
+                                <input type="text" id="sheet-url"
+                                    placeholder="https://docs.google.com/spreadsheets/d/...">
+                            </div>
+                            <div class="form-group">
+                                <label>Google Drive Folder ID (Attachments)</label>
+                                <input type="text" id="drive-folder" placeholder="Folder ID from URL">
+                            </div>
+                            <button class="btn btn-primary btn-block" id="save-settings-btn">Save Cloud Mapping</button>
+                        </div>
+
+                        <div class="settings-card glass-panel highlight">
+                            <div class="card-header">
+                                <i class="ri-mail-star-line"></i>
+                                <h3>Gmail Smart Sync</h3>
+                            </div>
+                            <p class="settings-desc">Automatically extract transactions from bank notification emails
+                                (Chase, BofA, Wells Fargo, etc.)</p>
+
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label>Google Web Client ID</label>
+                                <input type="text" id="gmail-client-id" placeholder="YOUR_CLIENT_ID_HERE.apps.googleusercontent.com">
+                            </div>
+
+                            <div class="client-id-guide" style="margin-bottom: 15px;">
+                                <button type="button" id="toggle-guide-btn" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--accent); font-size: 11px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500; border-style: dashed; width: max-content;">
+                                    <i class="ri-question-line"></i> Setup Guide: How to get a Client ID?
+                                </button>
+                                <div id="guide-content" style="display: none; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 8px; padding: 12px; margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--text-muted);">
+                                    <h4 style="color: var(--accent); margin-bottom: 6px; font-size: 11px; font-weight: 600;">Google Web Client ID Guide</h4>
+                                    <ol style="margin-left: 14px; padding-left: 0; display: flex; flex-direction: column; gap: 6px;">
+                                        <li>Go to <a href="https://console.cloud.google.com" target="_blank" style="color: var(--accent); text-decoration: underline;">Google Cloud Console</a>.</li>
+                                        <li>Create a project (e.g. <strong>My Finfo</strong>).</li>
+                                        <li>Go to <strong>APIs & Services</strong> &gt; <strong>Library</strong>, search for <strong>Gmail API</strong>, click <strong>Enable</strong>.</li>
+                                        <li>Go to <strong>OAuth consent screen</strong>, select <strong>External</strong>, and fill in mandatory fields. Under <strong>Scopes</strong>, add <code style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 1px 3px; border-radius: 3px;">.../auth/gmail.readonly</code>. Add your email as a <strong>Test User</strong>.</li>
+                                        <li>Go to <strong>Credentials</strong> &gt; <strong>Create Credentials</strong> &gt; <strong>OAuth client ID</strong>.</li>
+                                        <li>Select <strong>Web application</strong> as the application type.</li>
+                                        <li>Under <strong>Authorized JavaScript origins</strong>, add your local app URI: <code style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 1px 3px; border-radius: 3px;">http://localhost:5500</code> (or your current web server address).</li>
+                                        <li>Click <strong>Create</strong>, copy the Client ID, paste it above, and save settings.</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 15px;">
+                                <label>Gmail Label / Folder (Optional)</label>
+                                <input type="text" id="gmail-folder" placeholder="e.g. INBOX, Paytm, Bank-Alerts (defaults to all mail)">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="gmail-folder-all" style="width: auto; margin-bottom: 0; cursor: pointer; transform: scale(1.1);">
+                                <label for="gmail-folder-all" style="margin-bottom: 0; cursor: pointer; font-size: 13px; font-weight: 500;">Scan all emails in this folder (ignore rule filters)</label>
+                            </div>
+
+                            <div class="sync-status">
+                                <div class="status-info">
+                                    <span class="status-label">Status:</span>
+                                    <span class="status-value disconnected" id="gmail-status">Not Connected</span>
+                                </div>
+                                <button class="btn btn-outline btn-sm" id="connect-gmail-btn">Connect Account</button>
+                            </div>
+
+                            <div class="sync-controls hidden" id="gmail-controls">
+                                <div class="toggle-group">
+                                    <label class="switch">
+                                        <input type="checkbox" id="auto-scan-toggle">
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <span>Background Auto-Scan (Every 24h)</span>
+                                </div>
+                                <button class="btn btn-primary btn-block" id="scan-inbox-btn">
+                                    <i class="ri-find-replace-line"></i> Scan Inbox Now
+                                </button>
+                            </div>
+
+                            <div class="rules-accordion" style="margin-top: 20px; border-top: 1px solid var(--glass-border); padding-top: 15px;">
+                                <div class="accordion-header" id="toggle-rules-accordion" style="display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 5px 0;">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <i class="ri-equalizer-line" style="color: var(--accent); font-size: 16px;"></i>
+                                        <span style="font-weight: 600; font-size: 14px;">Field-to-Field Mapping Rules</span>
+                                    </div>
+                                    <i class="ri-arrow-down-s-line accordion-arrow" style="transition: transform 0.3s; font-size: 18px;"></i>
+                                </div>
+                                <div class="accordion-content" id="rules-accordion-content" style="margin-top: 15px; display: none; flex-direction: column; gap: 16px;">
+                                    
+                                    <!-- 1. Live Regex Sandbox & Tester -->
+                                    <div class="sandbox-facelift">
+                                         <div class="sandbox-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px;">
+                                             <div class="sandbox-title" style="display: flex; align-items: center; gap: 6px;">
+                                                 <i class="ri-pulse-line" style="color: var(--accent); font-size: 16px;"></i>
+                                                 <span style="font-weight: 600; font-size: 13px; color: var(--text-main);">Live Regex Sandbox & Parser Tester</span>
+                                             </div>
+                                             <div style="display: flex; align-items: center; gap: 6px;">
+                                                 <span style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; white-space: nowrap;">Rule to Test:</span>
+                                                 <select id="sandbox-rule-selector" style="font-size: 11px; padding: 3px 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text-main); font-weight: 600; width: 220px; height: auto;">
+                                                     <option value="auto">⚡ Auto-Detect (Scan All Rules)</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+                                        <div class="sandbox-grid">
+                                            <div class="sandbox-input-area">
+                                                <label style="font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 2px;">Notification Email Snippet</label>
+                                                <textarea id="sandbox-email-text" class="sandbox-textarea" placeholder="Paste notification email header or body here...&#10;e.g. Paid Rs. 150 at Starbucks using Paytm UPI.&#10;or&#10;Your credit card transaction of $ 42.50 at Amazon was approved."></textarea>
+                                                <button type="button" class="btn btn-primary btn-sm btn-block" id="sandbox-run-btn" style="margin-top: 6px;">
+                                                    <i class="ri-play-fill"></i> Execute Dry Run Parser
+                                                </button>
+                                            </div>
+                                            <div class="sandbox-results-panel">
+                                                <div id="sandbox-results-content">
+                                                    <div class="sandbox-empty-results">
+                                                        <i class="ri-flask-line" style="font-size: 24px; display: block; margin-bottom: 8px; color: var(--text-muted);"></i>
+                                                        Enter sample text and press "Execute Dry Run" to test your regex rules in real-time.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Section Title for Rules -->
+                                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-top: 5px;">
+                                        <span style="font-weight: 600; font-size: 13px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;">Custom Field Mapping Rules</span>
+                                        <span style="font-size: 11px; color: var(--text-muted);" id="sync-rules-count">0 Rules Active</span>
+                                    </div>
+
+                                    <!-- 2. Configured Rules Container -->
+                                    <div id="sync-rules-container" class="rules-facelift-container">
+                                        <!-- Configured rules will be rendered dynamically here -->
+                                    </div>
+
+                                    <!-- 3. Rule Action Buttons -->
+                                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                        <button type="button" class="btn btn-outline btn-sm" id="add-sync-rule-btn" style="flex: 1;">
+                                            <i class="ri-add-line"></i> Add Custom Rule
+                                        </button>
+                                        <button type="button" class="btn btn-outline btn-sm" id="toggle-templates-btn" style="flex: 1; border-color: rgba(56, 189, 248, 0.3); color: var(--accent);">
+                                            <i class="ri-mail-open-line"></i> Templates Directory
+                                        </button>
+                                    </div>
+
+                                    <!-- 4. Visual Template Picker (Initially Hidden) -->
+                                    <div id="templates-picker-container" class="glass-panel" style="display: none; padding: 15px; border-radius: 10px; border-color: rgba(56, 189, 248, 0.15); background: rgba(0,0,0,0.2);">
+                                        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                                            <i class="ri-library-line"></i> Select a Preset Template to Import
+                                        </div>
+                                        <div class="template-picker-grid" id="template-picker-grid">
+                                            <!-- Dynamically loaded premium templates -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-card glass-panel" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <i class="ri-database-2-line" style="color: var(--accent);"></i>
+                                <h3>Local Database Backup</h3>
+                            </div>
+                            <p class="settings-desc">Manage your local browser database. Export a beautiful multi-sheet Excel file for reporting, or download a secure JSON backup that can be restored later.</p>
+                            <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" id="btn-export-excel" style="flex: 1; min-width: 200px;">
+                                    <i class="ri-file-excel-2-line"></i> Export to Excel (.xlsx)
+                                </button>
+                                <button class="btn btn-outline" id="btn-export-json" style="flex: 1; min-width: 200px;">
+                                    <i class="ri-download-2-line"></i> Download Backup (.json)
+                                </button>
+                                <button class="btn btn-outline" id="btn-import-backup" style="flex: 1; min-width: 200px;">
+                                    <i class="ri-upload-cloud-2-line"></i> Restore Backup (.json)
+                                </button>
+                                <button class="btn btn-outline text-danger" id="btn-clear-transactions" style="flex: 1; min-width: 200px; border-color: rgba(239, 68, 68, 0.2); color: var(--color-expense);">
+                                    <i class="ri-delete-bin-line"></i> Clear All Transactions
+                                </button>
+                            </div>
+                            <input type="file" id="backup-file-input" class="hidden" accept=".json">
+                        </div>
+                    </div>
+                </div>
+                <!-- SCREEN: APPLICATION INFO -->
+                <div id="screen-app-info" class="screen">
+                    <div class="settings-grid">
+                        <div class="settings-card glass-panel">
+                            <div class="card-header">
+                                <i class="ri-global-line"></i>
+                                <h3>General Localization</h3>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Date Format</label>
+                                    <select id="app-date-format">
+                                        <option value="DD-MMM-YYYY">13-May-2026 (DD-MMM-YYYY)</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" style="flex: 1;">
+                                    <label>Time Format</label>
+                                    <select id="app-time-format">
+                                        <option value="24h">24 Hour (HH:mm)</option>
+                                        <option value="12h">12 Hour (hh:mm AM/PM)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Currency Symbol</label>
+                                <input type="text" id="app-currency" placeholder="e.g. $, ₹, £, €">
+                            </div>
+                        </div>
+
+                        <div class="settings-card glass-panel">
+                            <div class="card-header">
+                                <i class="ri-brush-line"></i>
+                                <h3>Branding & Links</h3>
+                            </div>
+                            <div class="form-group">
+                                <label>App Logo URL</label>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" id="app-logo-url" placeholder="https://path-to-your-logo.png"
+                                        style="flex: 1;">
+                                    <img id="app-logo-preview"
+                                        src="https://cdn-icons-png.flaticon.com/512/2845/2845873.png"
+                                        style="width: 40px; height: 40px; border-radius: 8px; background: rgba(255,255,255,0.05); padding: 5px;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Official App URL</label>
+                                <input type="text" id="app-url-link" placeholder="https://myfinfo.app">
+                            </div>
+                        </div>
+
+                        <div class="settings-card glass-panel" style="grid-column: span 2;">
+                            <div class="card-header">
+                                <i class="ri-file-info-line"></i>
+                                <h3>Application Details</h3>
+                            </div>
+                            <div class="form-group">
+                                <label>Detailed Description / About</label>
+                                <textarea id="app-description" rows="6"
+                                    placeholder="Enter application details, version info, or custom notes..."></textarea>
+                            </div>
+                            <div class="settings-actions"
+                                style="margin-top: 20px; display: flex; justify-content: flex-end;">
+                                <button class="btn btn-primary" id="save-app-info-btn" style="min-width: 200px;">Save
+                                    Application Info</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals & Overlays -->
+    <div id="import-preview-modal" class="modal">
+        <div class="modal-content glass-panel large">
+            <header>
+                <h3>Bulk Import Validation</h3>
+                <button class="btn-close">&times;</button>
+            </header>
+            <div class="validation-summary">
+                <span id="valid-count" class="badge success">0 Valid</span>
+                <span id="invalid-count" class="badge danger">0 Errors</span>
+            </div>
+            <div class="table-preview">
+                <table id="preview-table" style="white-space: nowrap; width: max-content;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Category Head</th>
+                            <th>Category</th>
+                            <th>SubCategory</th>
+                            <th>Account</th>
+                            <th>LedgerPerson</th>
+                            <th>Mode</th>
+                            <th>Withdrawal Amount(INR)</th>
+                            <th>Deposit Amount(INR)</th>
+                            <th>UPI Ref No</th>
+                            <th>Note</th>
+                            <th>Validation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-tbody"></tbody>
+                </table>
+            </div>
+            <footer>
+                <button class="btn btn-outline modal-cancel">Cancel</button>
+                <button class="btn btn-primary" id="confirm-import-btn" disabled>Confirm Import</button>
+            </footer>
+        </div>
+    </div>
+    
+    <!-- Master Entry Modal -->
+    <div id="master-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <header>
+                <h3 id="master-modal-title">Add Master Record</h3>
+                <button class="btn-close" onclick="closeMasterModal()">&times;</button>
+            </header>
+            <form id="master-form" novalidate>
+                <input type="hidden" id="master-target-type">
+                <input type="hidden" id="master-target-cat">
+                <input type="hidden" id="master-edit-index" value="-1">
+
+                <div id="common-fields">
+                    <div class="form-group" id="master-name-group">
+                        <label id="master-name-label">Name</label>
+                        <input type="text" id="master-name" required placeholder="e.g. Salary">
+                    </div>
+                </div>
+
+                <!-- Bank Specific Fields -->
+                <div id="bank-fields" class="hidden">
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 2;">
+                            <label>Account Holder Name *</label>
+                            <input type="text" id="master-bank-holder" placeholder="e.g. John Doe"
+                                oninput="updateShortName()">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Initials</label>
+                            <input type="text" id="master-bank-short-name" placeholder="JD" readonly
+                                style="background: var(--bg-main); opacity: 0.8; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; font-weight: 700; text-align: center;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Bank Name *</label>
+                            <input type="text" id="master-bank-name" placeholder="e.g. Chase"
+                                oninput="updateAccountName()">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Account Type Head *</label>
+                            <div style="display: flex; gap: 8px;">
+                                <select id="master-bank-head" style="flex: 1;" onchange="updateAccountName(); checkMasterBankHead();">
+                                    <!-- Populated from JS -->
+                                </select>
+                                <button type="button" class="btn btn-icon-only" onclick="addAccountHeadOption()"
+                                    title="Add Custom Head"><i class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Type *</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="master-bank-type" style="flex: 1;" onchange="updateAccountName()">
+                                <option value="Saving">Saving</option>
+                                <option value="Current">Current</option>
+                            </select>
+                            <button type="button" class="btn btn-icon-only" onclick="addBankTypeOption()"
+                                title="Add Custom Type"><i class="ri-add-line"></i></button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>A/c No. * (Last 4 Digits)</label>
+                            <input type="text" id="master-bank-number" placeholder="1234" maxlength="4"
+                                pattern="[0-9xX]{4}"
+                                oninput="this.value=this.value.replace(/[^0-9xX]/g,'').toUpperCase(); updateAccountName()">
+                        </div>
+                        <div style="display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Card No. * (Last 4 Digits)</label>
+                                <input type="text" id="master-bank-card-number" placeholder="5678" maxlength="4"
+                                    pattern="[0-9xX]{4}"
+                                    oninput="this.value=this.value.replace(/[^0-9xX]/g,'').toUpperCase(); updateAccountName()">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Opening Balance</label>
+                                <div class="input-prefix">
+                                    <span id="currency-symbol">₹</span>
+                                    <input type="number" step="0.01" id="master-bank-balance" placeholder="0.00">
+                                </div>
+                                <div id="master-balance-in-words" class="help-text"
+                                    style="margin-top: 8px; color: var(--accent); font-weight: 500; font-size: 11px; min-height: 1.2em; font-style: italic; opacity: 0.9;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Name (View Only)</label>
+                        <input type="text" id="master-bank-display-name" placeholder="Bank - Type - Number" readonly
+                            style="background: var(--bg-main); opacity: 0.8; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.05);">
+                    </div>
+
+                    <div class="form-row" style="margin-bottom: 20px;">
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-is-active" checked>
+                                <span class="checkmark"></span>
+                                <span>Is Active?</span>
+                            </label>
+                            <div class="help-text">Visible across app screens</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-is-income" checked>
+                                <span class="checkmark"></span>
+                                <span>Is Income Account?</span>
+                            </label>
+                            <div class="help-text">Visible during Income entry</div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-bottom: 20px;">
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-is-expense" checked>
+                                <span class="checkmark"></span>
+                                <span>Is Expense Account?</span>
+                            </label>
+                            <div class="help-text">Visible during Expense entry</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-auth-dashboard">
+                                <span class="checkmark"></span>
+                                <span>Auth Required for Dashboard?</span>
+                            </label>
+                            <div class="help-text">Hide data from net worth/charts</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row" style="margin-bottom: 20px;">
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-can-transfer-self" checked>
+                                <span class="checkmark"></span>
+                                <span>Can Transfer (Self)?</span>
+                            </label>
+                            <div class="help-text">Allow self-transfer flow</div>
+                        </div>
+                        <div class="checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" id="master-bank-can-transfer-other" checked>
+                                <span class="checkmark"></span>
+                                <span>Can Transfer (Other)?</span>
+                            </label>
+                            <div class="help-text">Allow Ledger flow</div>
+                        </div>
+                    </div>
+
+                    <!-- Loan EMI Details Specific to Loan Accounts -->
+                    <div id="master-bank-loan-details" class="hidden" style="margin-top: 20px; padding: 15px; background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.15); border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="color: var(--accent); font-size: 12px; text-transform: uppercase; margin-bottom: 15px; font-weight: 700; letter-spacing: 0.5px;">Loan EMI Details</h4>
+                        
+                        <div class="form-row" style="margin-bottom: 15px; display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Loan Sanctioned Date</label>
+                                <input type="date" id="master-bank-loan-sanctioned-date" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>First EMI Start Date</label>
+                                <input type="date" id="master-bank-loan-emi-start-date" onchange="calculateLoanEndDate()" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 15px; display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Loan Duration</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="number" id="master-bank-loan-duration-years" min="0" placeholder="Years" oninput="calculateLoanEndDate()" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px;">
+                                    <input type="number" id="master-bank-loan-duration-months" min="0" max="11" placeholder="Months" oninput="calculateLoanEndDate()" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px;">
+                                </div>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>Loan End Date *</label>
+                                <input type="date" id="master-bank-loan-end-date" readonly style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--accent); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%; cursor: not-allowed; opacity: 0.8;">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 15px; display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Rate of Interest (%)</label>
+                                <input type="number" step="0.01" id="master-bank-loan-rate" placeholder="e.g. 8.5" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>EMI Amount (₹)</label>
+                                <input type="number" step="0.01" id="master-bank-loan-emi-amount" min="0" placeholder="e.g. 12500" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                        </div>
+
+                        <div class="form-row" style="margin-bottom: 15px; display: flex; gap: 15px;">
+                            <div class="form-group" style="flex: 1;">
+                                <label>EMI Billing Date</label>
+                                <input type="number" id="master-bank-loan-emi-billing-date" min="1" max="31" placeholder="DD (e.g. 18)" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label>EMI Due Date</label>
+                                <input type="number" id="master-bank-loan-emi-due-date" min="1" max="31" placeholder="DD (e.g. 25)" style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 13px; width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="master-bank-notes" placeholder="Optional details..." rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- Category Specific Fields (Sub-Categories) -->
+                <div id="category-fields" class="hidden">
+                    <div class="form-group">
+                        <label>Categories</label>
+                        <div id="sub-category-list"
+                            style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                            <!-- Dynamic inputs for categories -->
+                        </div>
+                        <button type="button" class="btn btn-outline btn-block" onclick="addSubCategoryField()">
+                            <i class="ri-add-line"></i> Add Category
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline modal-cancel"
+                        onclick="closeMasterModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Master Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Details Modal (Dynamic Drill-Down Window) -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content glass-panel large">
+            <header>
+                <h3 id="details-modal-title">Transaction Details</h3>
+                <button class="btn-close" id="details-modal-close-btn">&times;</button>
+            </header>
+            <div class="modal-controls" style="display: flex; gap: 15px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                <div class="search-bar" style="flex: 1; max-width: 300px; margin-bottom: 0;">
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="details-search" placeholder="Search transactions...">
+                </div>
+                <div class="action-group">
+                    <button class="btn btn-primary" id="details-export-btn">
+                        <i class="ri-file-excel-line"></i> Export to Excel (.xlsx)
+                    </button>
+                </div>
+            </div>
+            <div class="dashboard-grid" id="details-modal-summary" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 5px;">
+                <!-- Dynamic context-specific summary badges or mini-cards -->
+            </div>
+            <div class="table-container glass-panel" style="flex: 1; overflow-y: auto; max-height: 45vh;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead id="details-thead">
+                        <!-- Dynamic header injected here -->
+                    </thead>
+                    <tbody id="details-tbody">
+                        <!-- Dynamic rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+            <footer style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <button class="btn btn-outline" id="details-modal-close-footer-btn">Close</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Quick Ledger Entry Modal -->
+    <div id="quick-ledger-modal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 560px; width: 95vw;">
+            <header>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background: rgba(245,158,11,0.15); color:#f59e0b; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">
+                        <i class="ri-hand-coin-line"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:16px;">Quick Ledger Entry</h3>
+                        <p style="margin:0; font-size:11px; color:var(--text-muted);">Add a Debited / Credited transaction</p>
+                    </div>
+                </div>
+                <button class="btn-close" onclick="closeQuickLedgerModal()">&times;</button>
+            </header>
+
+            <!-- Person / Name (View Only) -->
+            <div class="form-group" style="margin-top:16px;">
+                <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Name / Account (View Only)</label>
+                <div style="display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.25);">
+                    <i class="ri-user-3-line" style="color:#f59e0b; font-size:18px;"></i>
+                    <span id="ql-person-display" style="font-weight:700; font-size:15px; color:var(--text-main);">—</span>
+                    <input type="hidden" id="ql-person">
+                </div>
+            </div>
+
+            <!-- Debited / Credited Toggle -->
+            <div class="form-group" style="margin-top:14px;">
+                <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Entry Type *</label>
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                    <button type="button" id="ql-btn-given" onclick="selectQLType('given')"
+                        style="flex:1; padding:12px; border-radius:8px; border:2px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.05); color:var(--color-income); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="ri-arrow-right-up-line"></i> Debited
+                    </button>
+                    <button type="button" id="ql-btn-taken" onclick="selectQLType('taken')"
+                        style="flex:1; padding:12px; border-radius:8px; border:2px solid rgba(244,63,94,0.3); background:rgba(244,63,94,0.05); color:var(--color-expense); font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="ri-arrow-left-down-line"></i> Credited
+                    </button>
+                </div>
+                <input type="hidden" id="ql-entry-type" value="">
+            </div>
+
+            <!-- Amount + Date row -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:14px;">
+                <div class="form-group">
+                    <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Amount *</label>
+                    <div class="input-prefix">
+                        <span id="ql-currency">₹</span>
+                        <input type="number" step="0.01" id="ql-amount" placeholder="0.00" oninput="updateQLAmountWords(this.value)" style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:12px; border-radius:8px; font-size:14px; font-weight:600; width:100%; outline:none;">
+                    </div>
+                    <div id="ql-amount-words" style="margin-top:6px; font-size:10px; color:var(--accent); font-style:italic; font-weight:500; min-height:1em;"></div>
+                </div>
+                <div class="form-group">
+                    <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Date *</label>
+                    <input type="date" id="ql-date" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:12px; border-radius:8px; font-size:14px; outline:none;">
+                </div>
+            </div>
+
+            <!-- Account & Mode row -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:2px;">
+                <div class="form-group">
+                    <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Account *</label>
+                    <select id="ql-account" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:12px; border-radius:8px; font-size:13px; outline:none;">
+                        <option value="">— Select Account —</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Mode *</label>
+                    <select id="ql-mode" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:12px; border-radius:8px; font-size:13px; outline:none;">
+                        <option value="">— Select Mode —</option>
+                        <option value="UPI">UPI</option>
+                        <option value="CARD">CARD</option>
+                        <option value="CASH">CASH</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Opening Balance">Opening Balance</option>
+                        <option value="Auto Deduction">Auto Deduction</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Category row -->
+            <div class="form-group" style="margin-top:2px;">
+                <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Ledger Category *</label>
+                <select id="ql-category" style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:12px; border-radius:8px; font-size:13px; outline:none;">
+                    <option value="">— Select Category —</option>
+                </select>
+            </div>
+
+            <!-- Note -->
+            <div class="form-group" style="margin-top:2px;">
+                <label style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:var(--accent); font-weight:700;">Note</label>
+                <textarea id="ql-note" rows="2" placeholder="Purpose / Description (optional)"
+                    style="width:100%; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); color:var(--text-main); padding:10px 12px; border-radius:8px; font-size:13px; resize:none; outline:none; font-family:inherit;"></textarea>
+            </div>
+
+            <!-- Error message area -->
+            <div id="ql-error" style="display:none; background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); border-radius:8px; padding:10px 14px; font-size:12px; color:#f43f5e; margin-top:4px;"></div>
+
+            <footer style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+                <button class="btn btn-outline" onclick="closeQuickLedgerModal()">Cancel</button>
+                <button class="btn btn-primary" id="ql-save-btn" onclick="saveQuickLedgerEntry()" style="min-width:140px; display:flex; align-items:center; gap:8px; justify-content:center;">
+                    <i class="ri-save-line"></i> Save Entry
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
